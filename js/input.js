@@ -73,6 +73,10 @@ function setupMobile() {
   hold('btnRight', () => game.input.right = true, () => game.input.right = false);
   hold('btnJump', () => { game.input.jumpPressed = true; }, () => {});
   hold('btnShoot', () => game.input.shoot = true, () => game.input.shoot = false);
+  // Skill buttons - one-shot on press
+  hold('btnSkill1', () => { game.input.skill1 = true; }, () => {});
+  hold('btnSkill2', () => { game.input.skill2 = true; }, () => {});
+  hold('btnSkill3', () => { game.input.skill3 = true; }, () => {});
 }
 
 // Global sound setting
@@ -112,16 +116,21 @@ function cancelExit() {
   document.getElementById('overlay').style.display = 'flex';
 }
 
+// Sound control
+function toggleSound() {
+  const soundToggle = document.getElementById('soundToggle');
+  if (soundToggle) {
+    soundManager.enabled = soundToggle.checked;
+  }
+}
+
 // Listen for sound toggle changes
 document.addEventListener('DOMContentLoaded', () => {
   const soundToggle = document.getElementById('soundToggle');
   if (soundToggle) {
-    soundToggle.addEventListener('change', () => {
-      soundEnabled = soundToggle.checked;
-      if (game) {
-        game.soundEnabled = soundEnabled;
-      }
-    });
+    soundToggle.addEventListener('change', toggleSound);
+    // Initialize sound manager with current setting
+    soundManager.enabled = soundToggle.checked;
   }
 
   // Handle level selector

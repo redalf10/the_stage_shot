@@ -176,6 +176,12 @@ class Player {
     const by = this.y + this.h / 2 - 2;
     projectiles.push(new Projectile(bx, by, this.facing * 700, 0, 'player', '#00ffff', 20));
     this.anim.play('shoot');
+    // Play shoot sound with variation for each shot
+    if (this.powerup === 'rapid') {
+      soundManager.playWithVariation('rapid-shoot', 0.1, 0.1);
+    } else {
+      soundManager.playWithVariation('shoot', 0.08, 0.08);
+    }
     return true;
   }
 
@@ -202,6 +208,8 @@ class Player {
     });
     
     this.anim.play('skill');
+    // Play laser skill sound
+    soundManager.play('skill-laser');
     return true;
   }
 
@@ -213,6 +221,8 @@ class Player {
     this.skill2Timer = 0.3; // Display active for 0.3 seconds
     
     this.anim.play('skill');
+    // Play bomb skill sound
+    soundManager.play('skill-bomb');
     // Return explosion data to be handled by game
     return {
       x: this.x + this.w / 2,
@@ -233,6 +243,8 @@ class Player {
     this.skill3Timer = 0.3; // Display active for 0.3 seconds
     this.dashDistance = this.speed * 3 * this.dashDuration; // Distance to travel
     this.invincible = this.dashDuration; // Invincible during dash
+    // Play dash skill sound
+    soundManager.play('skill-dash');
     return true;
   }
 
@@ -242,8 +254,17 @@ class Player {
     this.hp = Math.max(0, this.hp - dmg);
     this.invincible = 1.0;
     this.flashTimer = 0.5;
-    if (this.hp <= 0) { this.alive = false; this.anim.play('die'); }
-    else this.anim.play('hit');
+    if (this.hp <= 0) { 
+      this.alive = false; 
+      this.anim.play('die');
+      // Play death sound
+      soundManager.play('player-die');
+    }
+    else {
+      this.anim.play('hit');
+      // Play hit sound when taking damage
+      soundManager.playWithVariation('player-hit', 0.1, 0.05);
+    }
   }
 
   getSpriteFrame() {

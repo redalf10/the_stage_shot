@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Sound Generator</title>
+    <style>
+        body {
+            background: #0d0d1f;
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 { color: #ff00ff; text-shadow: 0 0 10px #ff00ff; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .sound-item {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid #00ffff;
+            padding: 10px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        button {
+            background: rgba(255, 0, 255, 0.2);
+            border: 1px solid #ff00ff;
+            color: #ff00ff;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+        button:hover { background: rgba(255, 0, 255, 0.4); }
+        .status { color: #00ff88; }
+        .loading { color: #ffff00; }
+        #progress { width: 100%; height: 20px; background: rgba(0,255,255,0.1); border: 1px solid #00ffff; margin: 20px 0; }
+        #progressBar { height: 100%; background: #00ffff; width: 0%; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 GAME SOUND GENERATOR 🎵</h1>
+        <p>Generate all game sound effects automatically</p>
+        
+        <div id="progress">
+            <div id="progressBar"></div>
+        </div>
+        
+        <div id="status" class="status">Ready to generate sounds</div>
+        
+        <div id="soundsList"></div>
+        
+        <button onclick="generateAllSounds()" style="width: 100%; padding: 15px; font-size: 16px; margin-top: 20px;">
+            ▶ GENERATE ALL SOUNDS
+        </button>
+        <button onclick="downloadAll()" style="width: 100%; padding: 15px; font-size: 16px; margin-top: 10px;">
+            ⬇ DOWNLOAD ALL (ZIP)
+        </button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioContext = new AudioContext();
+        const sounds = {};
+
+        const soundDefinitions = {
+            'shoot': { desc: 'Player shoot', fn: generateShootSound },
+            'rapid-shoot': { desc: 'Rapid fire', fn: generateRapidShootSound },
+            'player-hit': { desc: 'Player hit', fn: generatePlayerHitSound },
+            'player-die': { desc: 'Player death', fn: generatePlayerDieSound },
+            'skill-laser': { desc: 'Laser skill', fn: generateLaserSound },
+            'skill-bomb': { desc: 'Bomb explosion', fn: generateBombSound },
+            'skill-dash': { desc: 'Dash skill', fn: generateDashSound },
+            'enemy-hit': { desc: 'Enemy hit', fn: generateEnemyHitSound },
+            'enemy-die': { desc: 'Enemy death', fn: generateEnemyDieSound },
+            'enemy-shoot': { desc: 'Enemy shoot', fn: generateEnemyShootSound },
+            'boss-hit': { desc: 'Boss hit', fn: generateBossHitSound },
+            'boss-die': { desc: 'Boss death', fn: generateBossDieSound },
+            'powerup-pickup': { desc: 'Powerup pickup', fn: generatePowerupSound },
+            'health-pickup': { desc: 'Health pickup', fn: generateHealthSound },
+            'level-complete': { desc: 'Level complete', fn: generateLevelCompleteSound },
+            'game-over': { desc: 'Game over', fn: generateGameOverSound },
+        };
+
+        // Sound Generation Functions
+        function generateShootSound() {
+            const duration = 0.1;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                data[i] = Math.sin(2 * Math.PI * 800 * t) * Math.exp(-5 * t);
+            }
+            return buffer;
+        }
+
+        function generateRapidShootSound() {
+            const duration = 0.08;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                data[i] = Math.sin(2 * Math.PI * 1200 * t) * Math.exp(-8 * t);
+            }
+            return buffer;
+        }
+
+        function generatePlayerHitSound() {
+            const duration = 0.3;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                const freq = 400 - (t * 200);
+                data[i] = (Math.sin(2 * Math.PI * freq * t) + Math.random() * 0.3) * Math.exp(-3 * t) * 0.6;
+            }
+            return buffer;
+        }
+
+        function generatePlayerDieSound() {
+            const duration = 0.8;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                const freq = 500 - (t * 400);
+                data[i] = Math.sin(2 * Math.PI * freq * t) * Math.exp(-2 * t) * 0.7;
+            }
+            return buffer;
+        }
+
+        function generateLaserSound() {
+            const duration = 0.4;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                const freq = 1500 + (t * 1000);
+                data[i] = Math.sin(2 * Math.PI * freq * t) * Math.exp(-3 * t);
+            }
+            return buffer;
+        }
+
+        function generateBombSound() {
+            const duration = 0.6;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                data[i] = (Math.sin(2 * Math.PI * 150 * t) + Math.random() * 0.5) * Math.exp(-2 * t);
+            }
+            return buffer;
+        }
+
+        function generateDashSound() {
+            const duration = 0.2;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                data[i] = (Math.sin(2 * Math.PI * (500 + t * 1000) * t) * Math.exp(-8 * t)) * 0.6;
+            }
+            return buffer;
+        }
+
+        function generateEnemyHitSound() {
+            const duration = 0.2;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                data[i] = (Math.sin(2 * Math.PI * 300 * t) + Math.random() * 0.2) * Math.exp(-4 * t) * 0.5;
+            }
+            return buffer;
+        }
+
+        function generateEnemyDieSound() {
+            const duration = 0.4;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                const freq = 350 - (t * 300);
+                data[i] = Math.sin(2 * Math.PI * freq * t) * Math.exp(-2.5 * t) * 0.6;
+            }
+            return buffer;
+        }
+
+        function generateEnemyShootSound() {
+            const duration = 0.12;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                data[i] = Math.sin(2 * Math.PI * 600 * t) * Math.exp(-6 * t) * 0.6;
+            }
+            return buffer;
+        }
+
+        function generateBossHitSound() {
+            const duration = 0.35;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                data[i] = (Math.sin(2 * Math.PI * 220 * t) + Math.sin(2 * Math.PI * 440 * t) * 0.5 + Math.random() * 0.2) * Math.exp(-3 * t) * 0.7;
+            }
+            return buffer;
+        }
+
+        function generateBossDieSound() {
+            const duration = 1.0;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                const freq = 500 - (t * 400);
+                data[i] = (Math.sin(2 * Math.PI * freq * t) + Math.sin(2 * Math.PI * (freq * 0.5) * t) * 0.5) * Math.exp(-1.5 * t) * 0.7;
+            }
+            return buffer;
+        }
+
+        function generatePowerupSound() {
+            const duration = 0.35;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                data[i] = (Math.sin(2 * Math.PI * (800 + t * 400) * t) * Math.exp(-3 * t)) * 0.7;
+            }
+            return buffer;
+        }
+
+        function generateHealthSound() {
+            const duration = 0.3;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                data[i] = (Math.sin(2 * Math.PI * (600 + t * 300) * t) * Math.exp(-3.5 * t)) * 0.6;
+            }
+            return buffer;
+        }
+
+        function generateLevelCompleteSound() {
+            const duration = 1.2;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                const noteIndex = Math.floor((t / 0.3) % notes.length);
+                const freq = notes[noteIndex];
+                const noteTime = (t % 0.3) / 0.3;
+                data[i] = Math.sin(2 * Math.PI * freq * t) * Math.exp(-3 * noteTime) * 0.6;
+            }
+            return buffer;
+        }
+
+        function generateGameOverSound() {
+            const duration = 1.0;
+            const buffer = audioContext.createBuffer(1, audioContext.sampleRate * duration, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < data.length; i++) {
+                const t = i / audioContext.sampleRate;
+                const freq = 400 - (t * 300);
+                data[i] = (Math.sin(2 * Math.PI * freq * t) + Math.random() * 0.3) * Math.exp(-2 * t) * 0.7;
+            }
+            return buffer;
+        }
+
+        // Convert AudioBuffer to WAV
+        function audioBufferToWav(audioBuffer) {
+            const numberOfChannels = audioBuffer.numberOfChannels;
+            const sampleRate = audioBuffer.sampleRate;
+            const format = 1;
+            const bitDepth = 16;
+            const bytesPerSample = bitDepth / 8;
+            const blockAlign = numberOfChannels * bytesPerSample;
+
+            const interleaved = new Float32Array(audioBuffer.getChannelData(0).length * numberOfChannels);
+            for (let i = 0; i < audioBuffer.getChannelData(0).length; i++) {
+                interleaved[i * numberOfChannels] = audioBuffer.getChannelData(0)[i];
+                if (numberOfChannels === 2) {
+                    interleaved[i * numberOfChannels + 1] = audioBuffer.getChannelData(1)[i];
+                }
+            }
+
+            const dataLength = interleaved.length * bytesPerSample;
+            const buffer = new ArrayBuffer(44 + dataLength);
+            const view = new DataView(buffer);
+
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + dataLength, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, format, true);
+            view.setUint16(22, numberOfChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * blockAlign, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, bitDepth, true);
+            writeString(36, 'data');
+            view.setUint32(40, dataLength, true);
+
+            let index = 44;
+            for (let i = 0; i < interleaved.length; i++) {
+                const sample = Math.max(-1, Math.min(1, interleaved[i]));
+                view.setInt16(index, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+                index += 2;
+            }
+
+            return buffer;
+        }
+
+        function updateProgress(current, total) {
+            const percent = (current / total) * 100;
+            document.getElementById('progressBar').style.width = percent + '%';
+        }
+
+        function updateStatus(msg, isLoading = false) {
+            const elem = document.getElementById('status');
+            elem.textContent = msg;
+            elem.className = isLoading ? 'loading' : 'status';
+        }
+
+        async function generateAllSounds() {
+            updateStatus('Generating sounds...', true);
+            document.getElementById('soundsList').innerHTML = '';
+            
+            const total = Object.keys(soundDefinitions).length;
+            let current = 0;
+
+            for (const [key, def] of Object.entries(soundDefinitions)) {
+                try {
+                    const buffer = def.fn();
+                    const wavBuffer = audioBufferToWav(buffer);
+                    sounds[key] = { blob: new Blob([wavBuffer], {type: 'audio/wav'}), desc: def.desc };
+                    
+                    const soundItem = document.createElement('div');
+                    soundItem.className = 'sound-item';
+                    soundItem.innerHTML = `
+                        <div>
+                            <strong>${key}</strong> - ${def.desc}
+                        </div>
+                        <div>
+                            <button onclick="playSound('${key}')">▶ Play</button>
+                            <button onclick="downloadSound('${key}')">⬇ Download</button>
+                        </div>
+                    `;
+                    document.getElementById('soundsList').appendChild(soundItem);
+                    
+                    current++;
+                    updateProgress(current, total);
+                } catch (e) {
+                    console.error('Failed to generate', key, e);
+                }
+            }
+
+            updateStatus('✓ All sounds generated!');
+        }
+
+        function playSound(key) {
+            if (!sounds[key]) return;
+            const blob = sounds[key].blob;
+            const url = URL.createObjectURL(blob);
+            const audio = new Audio(url);
+            audio.play();
+        }
+
+        function downloadSound(key) {
+            if (!sounds[key]) return;
+            const blob = sounds[key].blob;
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = key + '.wav';
+            a.click();
+        }
+
+        async function downloadAll() {
+            if (Object.keys(sounds).length === 0) {
+                updateStatus('Generate sounds first!', true);
+                return;
+            }
+
+            updateStatus('Creating ZIP file...', true);
+            const zip = new JSZip();
+
+            for (const [key, {blob}] of Object.entries(sounds)) {
+                zip.file(key + '.wav', blob);
+            }
+
+            const zipBlob = await zip.generateAsync({type: 'blob'});
+            const url = URL.createObjectURL(zipBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'game-sounds.zip';
+            a.click();
+
+            updateStatus('✓ ZIP downloaded! Extract to assets/sounds/');
+        }
+
+        // Initial render
+        window.addEventListener('load', () => {
+            let html = '';
+            for (const [key, def] of Object.entries(soundDefinitions)) {
+                html += `<div class="sound-item"><strong>${key}</strong> - ${def.desc}<span style="color:#888">Ready</span></div>`;
+            }
+            document.getElementById('soundsList').innerHTML = html;
+        });
+    </script>
+</body>
+</html>

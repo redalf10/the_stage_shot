@@ -25,6 +25,11 @@
     <button id="pauseBtn" onclick="game.togglePause()">⏸ PAUSE</button>
     <button id="shopBtn" onclick="showShop()" style="display:none; position:absolute; top:10px; right:130px; background:transparent; border:1px solid #ff00ff; color:#ff00ff; font-family:'Courier New',monospace; font-size:11px; padding:4px 10px; cursor:pointer; pointer-events:all; text-shadow:0 0 6px #ff00ff; letter-spacing:2px;">🛒 SHOP</button>
     <div id="mobileControls">
+      <!-- Skills Row -->
+      <div class="mobileBtn skillBtn" id="btnSkill1" style="bottom: 76px; left: 20px; background: rgba(255,255,0,0.12); border-color: #ffff0088; color: #ffff00;">Q</div>
+      <div class="mobileBtn skillBtn" id="btnSkill2" style="bottom: 76px; left: 90px; background: rgba(255,136,0,0.12); border-color: #ff880088; color: #ff8800;">E</div>
+      <div class="mobileBtn skillBtn" id="btnSkill3" style="bottom: 76px; right: 20px; background: rgba(255,255,255,0.12); border-color: #ffffff88; color: #ffffff;">R</div>
+      <!-- Movement Row -->
       <div class="mobileBtn" id="btnLeft">◀</div>
       <div class="mobileBtn" id="btnRight">▶</div>
       <div class="mobileBtn" id="btnJump">▲</div>
@@ -59,7 +64,7 @@
     <div style="margin-top:30px; font-size:18px;">
       <div style="margin-bottom:25px;">
         <label style="color:#00ffff; cursor:pointer; display:flex; align-items:center;">
-          <input type="checkbox" id="soundToggle" checked style="margin-right:10px; width:18px; height:18px; cursor:pointer;">
+          <input type="checkbox" id="soundToggle" checked style="margin-right:10px; width:18px; height:18px; cursor:pointer;" onchange="toggleSound()">
           <span>Sound ON / OFF</span>
         </label>
       </div>
@@ -144,6 +149,7 @@
 <script src="js/spriteAnimator.js"></script>
 <script src="js/spriteLoader.js"></script>
 <script src="js/camera.js"></script>
+<script src="js/soundManager.js"></script>
 <script src="js/projectile.js"></script>
 <script src="js/platform.js"></script>
 <script src="js/player.js"></script>

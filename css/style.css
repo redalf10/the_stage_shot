@@ -380,12 +380,19 @@ body {
   box-shadow: 0 0 12px #00ffff44;
 }
 
-
+.skillBtn { font-size: 16px; font-weight: bold; }
 .mobileBtn:active { background: rgba(0,255,255,0.3); }
+.skillBtn:active { box-shadow: 0 0 20px currentColor; }
 #btnLeft { bottom: 10px; left: 20px; }
 #btnRight { bottom: 10px; left: 90px; }
 #btnJump { bottom: 10px; right: 90px; background: rgba(255,0,255,0.12); border-color: #ff00ff88; color: #ff00ff; }
 #btnShoot { bottom: 10px; right: 20px; background: rgba(255,200,0,0.12); border-color: #ffc80088; color: #ffc800; }
+#btnSkill1 { text-shadow: 0 0 8px #ffff00; box-shadow: 0 0 12px #ffff0044; }
+#btnSkill1:active { background: rgba(255,255,0,0.3); box-shadow: 0 0 20px #ffff00; }
+#btnSkill2 { text-shadow: 0 0 8px #ff8800; box-shadow: 0 0 12px #ff880044; }
+#btnSkill2:active { background: rgba(255,136,0,0.3); box-shadow: 0 0 20px #ff8800; }
+#btnSkill3 { text-shadow: 0 0 8px #ffffff; box-shadow: 0 0 12px #ffffff44; }
+#btnSkill3:active { background: rgba(255,255,255,0.3); box-shadow: 0 0 20px #ffffff; }
 
 /* ===============================
    PLAYER SPRITE (SPRITE SHEET)

@@ -183,6 +183,8 @@ class Game {
         this.explosions.push(explosion);
         this.spawnParticles(explosion.x, explosion.y, '#ff6600', 20);
         this.camera.addShake(8);
+        // Play explosion sound
+        soundManager.playExplosion();
       }
       this.input.skill2 = false;
     }
@@ -282,9 +284,11 @@ class Game {
         pw.alive = false;
         if (pw.type === 'health') {
           player.hp = Math.min(player.maxHp, player.hp + 40);
+          soundManager.play('health-pickup');
         } else {
           player.powerup = pw.type;
           player.powerupTimer = 8;
+          soundManager.play('powerup-pickup');
         }
       }
     }
@@ -308,6 +312,8 @@ class Game {
     const allDead = enemies.every(e => !e.alive || e.deathTimer > 0.5);
     if (allDead && enemies.length > 0 && !this.levelCompletedShown) {
       this.levelCompletedShown = true;
+      // Play level complete sound
+      soundManager.playLevelComplete();
       // Show level complete message
       const levelNum = this.level;
       const levelCompletedOverlay = document.getElementById('levelCompletedOverlay');
@@ -363,6 +369,8 @@ class Game {
   }
 
   showDeathScreen() {
+    // Play game over sound
+    soundManager.playGameOver();
     const ov = document.getElementById('overlay');
     ov.innerHTML = `
       <h1 style="color:#ff0044;text-shadow:0 0 20px #ff0044">FLATLINED</h1>
@@ -374,6 +382,8 @@ class Game {
   }
 
   showWinScreen() {
+    // Play victory sound
+    soundManager.playLevelComplete();
     const ov = document.getElementById('overlay');
     ov.innerHTML = `
       <h1 style="color:#00ff88;text-shadow:0 0 30px #00ff88, 0 0 60px #00ff88">VICTORY</h1>

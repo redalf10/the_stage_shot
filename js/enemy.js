@@ -98,6 +98,8 @@ class Enemy {
       const by = this.y + this.h * 0.4;
       projectiles.push(new Projectile(bx, by, Math.cos(angle)*speed, Math.sin(angle)*speed*0.4, 'enemy', '#ff4400', this.dmg));
       this.anim.play('attack');
+      // Play enemy shoot sound
+      soundManager.playWithVariation('enemy-shoot', 0.15, 0.1);
     }
     // Anim
     if (!this.onGround) this.anim.play('jump');
@@ -119,6 +121,19 @@ class Enemy {
       this.hp = 0;
       this.alive = false;
       this.anim.play('die');
+      // Play death sound based on enemy type
+      if (this.type === 'boss' || this.type === 'megaboss') {
+        soundManager.play('boss-die');
+      } else {
+        soundManager.playWithVariation('enemy-die', 0.15, 0.1);
+      }
+    } else {
+      // Play hit sound
+      if (this.type === 'boss' || this.type === 'megaboss') {
+        soundManager.playWithVariation('boss-hit', 0.1, 0.05);
+      } else {
+        soundManager.playWithVariation('enemy-hit', 0.12, 0.08);
+      }
     }
   }
 
