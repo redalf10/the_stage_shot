@@ -18,7 +18,12 @@ function startGame() {
 }
 
 function restartGame() {
-  game.level = selectedLevel;
+  // If restarting from victory (game completed), reset to level 1
+  // If restarting from death, keep the current level
+  if (game.state === 'win') {
+    game.level = 1;
+  }
+  // For 'dead' state, game.level stays the same - restart at the same stage
   game.score = 0;
   game.player = null;
   game.initLevel();

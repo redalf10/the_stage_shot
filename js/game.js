@@ -42,12 +42,10 @@ function buildLevel(num) {
     const px = 300 + Math.random() * (W - 400);
     enemies.push(new Enemy(px, H - 200, type, num));
   }
-  // Boss on level 5+, Megaboss on level 15
-  if (num === 15) {
-    enemies.push(new Enemy(W - 300, H - 200, 'megaboss', num));
-  } else if (num >= 5 && num % 3 === 0) {
-    enemies.push(new Enemy(W - 300, H - 200, 'boss', num));
-  }
+  
+  // Boss on every level - with unique boss type for each level
+  const bossType = `level-${num}`;
+  enemies.push(new Enemy(W - 300, H - 200, bossType, num));
 
   // Powerups
   for (let i = 0; i < 3; i++) {
@@ -76,7 +74,9 @@ class Game {
     this.explosions = []; // For area effects like Ultra Bomb
     this.soundEnabled = true; // Sound toggle
     this.levelCompletedShown = false; // Track if level complete message has been shown
+    this.portal = null; // Boss portal animation
     this.camera = new Camera(this.W, this.H);
+    this.timeOfDay = 'night'; // 'morning', 'afternoon', 'night'
     this.bgStars = Array.from({length:100}, () => ({
       x: Math.random()*4000, y: Math.random()*500,
       s: Math.random()*2+0.5, b: Math.random()
@@ -89,7 +89,16 @@ class Game {
     this.initLevel();
   }
 
+  getTimeOfDay() {
+    // Cycle through morning, afternoon, night based on level
+    const cycle = (this.level - 1) % 3;
+    if (cycle === 0) return 'morning';
+    if (cycle === 1) return 'afternoon';
+    return 'night';
+  }
+
   initLevel() {
+    this.timeOfDay = this.getTimeOfDay(); // Set time of day based on level
     const level = buildLevel(this.level);
     this.platforms = level.platforms;
     this.enemies = level.enemies;
@@ -99,6 +108,11 @@ class Game {
     this.projectiles = [];
     this.explosions = [];
     this.levelCompletedShown = false; // Reset level complete flag
+    this.portalShown = false; // Track if portal has been shown
+    
+    // Portal will be created when player gets close to boss
+    this.portal = null;
+    
     if (!this.player) {
       this.player = new Player(100, 400, this.playerSprite);
     } else {
@@ -165,6 +179,31 @@ class Game {
     }
 
     player.update(dt, this.input, platforms);
+
+    // Spawn jump effect particles
+    if (player.justJumped) {
+      this.spawnParticles(player.x + player.w / 2, player.y + player.h, '#00ffff', 30);
+      player.justJumped = false;
+    }
+
+    // Check if player is approaching boss and create portal
+    if (!this.portalShown && player.alive) {
+      const bossLocationX = this.levelW - 300;
+      const distToBoss = bossLocationX - player.x;
+      // Show portal when player is within 600 pixels of boss location
+      if (distToBoss < 600 && distToBoss > 0) {
+        const bossType = `level-${this.level}`;
+        this.portal = new Portal(bossLocationX, this.levelH / 2 - 50, bossType, this.level);
+        this.portalShown = true;
+        // Play warning sound
+        soundManager.play('boss-die'); // Placeholder - could be a different sound
+      }
+    }
+
+    // Update portal animation
+    if (this.portal) {
+      this.portal.update(dt);
+    }
 
     // Shoot
     if (this.input.shoot && player.alive) {
@@ -427,6 +466,11 @@ class Game {
     // Projectiles
     for (const p of this.projectiles) p.draw(ctx, cam);
 
+    // Portal animation (boss intro)
+    if (this.portal) {
+      this.portal.draw(ctx, cam);
+    }
+
     // Explosions (Ultra Bomb effect)
     for (const exp of this.explosions) {
       const px = exp.x - cam.x;
@@ -491,11 +535,48 @@ class Game {
 
   drawBackground(ctx, cam) {
     const { W, H } = this;
+    const time = this.timeOfDay;
+    
+    // Color palettes for different times of day
+    let skyTop, skyMid, skyBottom, starColor, starAlphaMult, buildingColor, windowDarkColor, gridColor;
+    
+    if (time === 'morning') {
+      // Morning: warm oranges, pinks, and light blues
+      skyTop = '#ff9966';
+      skyMid = '#ffcc99';
+      skyBottom = '#99ddff';
+      starColor = '#ffffff';
+      starAlphaMult = 0.1; // Stars barely visible in morning
+      buildingColor = '#ff6633';
+      windowDarkColor = '#ff9966';
+      gridColor = '#ffffff44';
+    } else if (time === 'afternoon') {
+      // Afternoon: bright blues and yellows
+      skyTop = '#0066ff';
+      skyMid = '#3399ff';
+      skyBottom = '#99ccff';
+      starColor = '#ffffff';
+      starAlphaMult = 0.05; // Stars nearly invisible
+      buildingColor = '#0066aa';
+      windowDarkColor = '#0033aa';
+      gridColor = '#00ffff11';
+    } else {
+      // Night: dark blues and purples (original theme)
+      skyTop = '#000010';
+      skyMid = '#0a001a';
+      skyBottom = '#000005';
+      starColor = '#ffffff';
+      starAlphaMult = 1; // Full star visibility
+      buildingColor = '#330066';
+      windowDarkColor = '#2a1a3a';
+      gridColor = '#00ffff11';
+    }
+    
     // Sky gradient
     const grad = ctx.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, '#000010');
-    grad.addColorStop(0.6, '#0a001a');
-    grad.addColorStop(1, '#000005');
+    grad.addColorStop(0, skyTop);
+    grad.addColorStop(0.6, skyMid);
+    grad.addColorStop(1, skyBottom);
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, H);
 
@@ -504,30 +585,30 @@ class Game {
     for (const s of this.bgStars) {
       const px = ((s.x - cam.x * 0.1) % (this.levelW + 200));
       const py = s.y;
-      const alpha = 0.4 + Math.sin(t * 2 + s.b * 10) * 0.3;
+      const alpha = (0.4 + Math.sin(t * 2 + s.b * 10) * 0.3) * starAlphaMult;
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = starColor;
       ctx.fillRect(px, py, s.s, s.s);
     }
     ctx.globalAlpha = 1;
 
     // Parallax city silhouette (layer 2)
-    ctx.fillStyle = '#0d0022';
     const cityOff = -(cam.x * 0.3) % (W * 2);
     for (let i = 0; i < 20; i++) {
-      const bx = cityOff + i * 120 - 200;
-      const bh = 80 + (i * 37 % 80);
-      ctx.fillRect(bx % (W * 2 + 400) - 400, H - 40 - bh, 90, bh);
+      const bx = cityOff + i * 170 - 200;
+      const bh = 120 + (i * 50 % 100);
+      // Building
+      ctx.fillStyle = buildingColor;
+      ctx.fillRect(bx % (W * 2 + 400) - 400, H - 40 - bh, 130, bh);
       // Windows
-      ctx.fillStyle = '#ff00ff22';
       for (let wy = H - 40 - bh + 10; wy < H - 50; wy += 15) {
-        for (let wx = bx + 8; wx < bx + 80; wx += 18) {
+        for (let wx = bx + 8; wx < bx + 120; wx += 18) {
           if (Math.random() > 0.4) {
+            ctx.fillStyle = windowDarkColor;
             ctx.fillRect(wx % (W * 2 + 400) - 400, wy, 8, 6);
           }
         }
       }
-      ctx.fillStyle = '#0d0022';
     }
 
     // Scanlines
@@ -537,7 +618,7 @@ class Game {
     ctx.globalAlpha = 1;
 
     // Grid floor
-    ctx.strokeStyle = '#00ffff11';
+    ctx.strokeStyle = gridColor;
     ctx.lineWidth = 1;
     const gridOff = -(cam.x * 0.5) % 80;
     for (let gx = gridOff; gx < W; gx += 80) {

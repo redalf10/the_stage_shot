@@ -57,6 +57,7 @@ class Player {
     });
     this.anim.play('idle');
     this.flashTimer = 0;
+    this.justJumped = false; // Flag for jump effect
   }
 
   update(dt, input, platforms) {
@@ -78,6 +79,7 @@ class Player {
     if (input.jump && this.onGround) {
       this.vy = this.jumpForce;
       this.onGround = false;
+      this.justJumped = true;
     }
     // Gravity
     this.vy += 900 * dt;
