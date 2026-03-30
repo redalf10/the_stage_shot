@@ -8,30 +8,31 @@ function buildLevel(num) {
   const enemies = [];
   const powerups = [];
 
-  // Ground
-  platforms.push(new Platform(0, H - 40, W, 40, '#00ffff'));
-  // Random floating platforms
-  const layouts = [
-    [
-      [100, 360, 180, 18], [380, 300, 150, 18], [600, 380, 120, 18],
-      [800, 250, 200, 18], [1100, 320, 160, 18], [1350, 380, 140, 18],
-      [1600, 270, 180, 18], [1850, 340, 150, 18], [2100, 290, 170, 18],
-      [200, 210, 160, 18], [500, 160, 140, 18], [900, 180, 130, 18],
-      [1200, 200, 150, 18], [1500, 150, 120, 18], [1800, 200, 140, 18],
-      [2100, 160, 130, 18],
-    ],
-    [
-      [150, 380, 200, 18], [430, 310, 120, 18], [650, 360, 100, 18],
-      [850, 240, 180, 18], [1100, 310, 140, 18], [1400, 370, 160, 18],
-      [1650, 260, 170, 18], [1900, 330, 130, 18], [2150, 280, 150, 18],
-      [250, 220, 150, 18], [550, 170, 130, 18], [950, 190, 140, 18],
-      [1250, 210, 160, 18], [1550, 160, 130, 18], [1850, 210, 140, 18],
-    ],
-  ];
-  const layout = layouts[(num - 1) % layouts.length];
+  // Ground - fixed at bottom
+  const groundY = H - 40;
+  platforms.push(new Platform(0, groundY, W, 40, '#00ffff'));
+  
+  // Create organized floating platforms with proper spacing
   const colors = ['#00ffff','#ff00ff','#ffff00','#00ff88'];
-  layout.forEach(([x, y, w, h], i) => {
-    platforms.push(new Platform(x, y, w, h, colors[i % colors.length]));
+  const platformData = [
+    { x: 150, w: 150 },
+    { x: 380, w: 140 },
+    { x: 600, w: 130 },
+    { x: 800, w: 180 },
+    { x: 1020, w: 150 },
+    { x: 1220, w: 140 },
+    { x: 1420, w: 160 },
+    { x: 1650, w: 140 },
+    { x: 1880, w: 150 },
+    { x: 2100, w: 140 },
+  ];
+  
+  // Create organized vertical levels for better gameplay - positioned lower
+  const verticalLevels = [350, 310, 290, 380, 340, 320, 370, 300, 360, 280];
+  
+  platformData.forEach((data, i) => {
+    const y = verticalLevels[i % verticalLevels.length];
+    platforms.push(new Platform(data.x, y, data.w, 18, colors[i % colors.length]));
   });
 
   // Enemies
@@ -54,7 +55,7 @@ function buildLevel(num) {
     powerups.push(new Powerup(px, 100, types2[i]));
   }
 
-  return { platforms, enemies, powerups, W, H };
+  return { platforms, enemies, powerups, W, H, groundY };
 }
 
 // ============================================================
@@ -113,16 +114,24 @@ class Game {
     // Portal will be created when player gets close to boss
     this.portal = null;
     
+    // Calculate player starting Y position (just above the ground)
+    const playerStartY = level.groundY - 42; // 42 is player height
+    
     if (!this.player) {
-      this.player = new Player(100, 400, this.playerSprite);
+      this.player = new Player(100, playerStartY, this.playerSprite);
     } else {
       this.player.x = 100;
-      this.player.y = 400;
+      this.player.y = playerStartY;
       this.player.vx = 0;
       this.player.vy = 0;
       this.player.hp = this.player.maxHp;
       this.player.alive = true;
       this.player.anim.play('idle');
+    }
+    // Ensure player DOM element is visible
+    if (this.player.domElement) {
+      this.player.domElement.style.display = 'block';
+      this.player.domElement.style.visibility = 'visible';
     }
     // Add sprite reference to enemies
     this.enemies.forEach(enemy => {
@@ -415,7 +424,10 @@ class Game {
       <h1 style="color:#ff0044;text-shadow:0 0 20px #ff0044">FLATLINED</h1>
       <div class="sub" style="color:#ff00ff">SIGNAL LOST</div>
       <div style="color:#888;font-size:14px;margin-bottom:30px">SCORE: <span style="color:#00ffff">${this.score}</span></div>
-      <button class="startBtn" style="border-color:#ff0044;color:#ff0044" onclick="restartGame()">[ RECONNECT ]</button>
+      <div style="display:flex; gap:20px; justify-content:center;">
+        <button class="startBtn" style="border-color:#ff0044;color:#ff0044" onclick="restartGame()">[ RECONNECT ]</button>
+        <button class="startBtn" style="border-color:#00ffff;color:#00ffff" onclick="goToMainMenu()">[ MAIN MENU ]</button>
+      </div>
     `;
     ov.style.display = 'flex';
   }

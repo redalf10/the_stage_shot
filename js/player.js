@@ -88,17 +88,22 @@ class Player {
     this.x += this.vx * dt;
     this.x = Math.max(0, this.x);
     this.onGround = false;
+    const prevY = this.y;
     this.y += this.vy * dt;
     for (const p of platforms) {
       if (this.collides(p)) {
-        if (this.vy > 0 && this.y + this.h - this.vy * dt <= p.y + 2) {
+        // Check which side we came from using previous position
+        if (prevY + this.h <= p.y && this.vy > 0) {
+          // Landed on top from above
           this.y = p.y - this.h;
           this.vy = 0;
           this.onGround = true;
-        } else if (this.vy < 0 && this.y >= p.y + p.h - 2) {
+        } else if (prevY >= p.y + p.h && this.vy < 0) {
+          // Hit head on platform from below
           this.y = p.y + p.h;
           this.vy = 0;
         } else {
+          // Side collision
           if (this.vx > 0) this.x = p.x - this.w;
           else this.x = p.x + p.w;
           this.vx = 0;

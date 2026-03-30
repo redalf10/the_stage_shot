@@ -34,30 +34,30 @@ function setupInput() {
   const keys = {};
   document.addEventListener('keydown', e => {
     keys[e.code] = true;
-    if (['ArrowUp','Space','KeyZ','KeyX','ArrowLeft','ArrowRight','KeyQ','KeyE','KeyR','KeyS'].includes(e.code)) e.preventDefault();
+    if (['ArrowUp','Space','KeyW','ArrowLeft','ArrowRight','KeyA','KeyD','KeyJ','KeyK','KeyL','KeyP'].includes(e.code)) e.preventDefault();
     const inp = game.input;
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') inp.left = true;
     if (e.code === 'ArrowRight' || e.code === 'KeyD') inp.right = true;
-    if ((e.code === 'ArrowUp' || e.code === 'Space' || e.code === 'KeyW') && !inp._jumpHeld) {
+    if ((e.code === 'ArrowUp' || e.code === 'KeyW') && !inp._jumpHeld) {
       inp.jumpPressed = true;
       inp._jumpHeld = true;
     }
-    if (e.code === 'KeyZ' || e.code === 'KeyX' || e.code === 'ControlLeft') inp.shoot = true;
-    if (e.code === 'KeyQ') inp.skill1 = true;
-    if (e.code === 'KeyE') inp.skill2 = true;
-    if (e.code === 'KeyR') inp.skill3 = true;
-    if (e.code === 'KeyS') showShop();
+    if (e.code === 'Space') inp.shoot = true;
+    if (e.code === 'KeyJ') inp.skill1 = true;
+    if (e.code === 'KeyK') inp.skill2 = true;
+    if (e.code === 'KeyL') inp.skill3 = true;
+    if (e.code === 'KeyP') showShop();
     if (e.code === 'Escape') game.togglePause();
   });
   document.addEventListener('keyup', e => {
     const inp = game.input;
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') inp.left = false;
     if (e.code === 'ArrowRight' || e.code === 'KeyD') inp.right = false;
-    if (e.code === 'ArrowUp' || e.code === 'Space' || e.code === 'KeyW') inp._jumpHeld = false;
-    if (e.code === 'KeyZ' || e.code === 'KeyX' || e.code === 'ControlLeft') inp.shoot = false;
-    if (e.code === 'KeyQ') inp.skill1 = false;
-    if (e.code === 'KeyE') inp.skill2 = false;
-    if (e.code === 'KeyR') inp.skill3 = false;
+    if (e.code === 'ArrowUp' || e.code === 'KeyW') inp._jumpHeld = false;
+    if (e.code === 'Space') inp.shoot = false;
+    if (e.code === 'KeyJ') inp.skill1 = false;
+    if (e.code === 'KeyK') inp.skill2 = false;
+    if (e.code === 'KeyL') inp.skill3 = false;
   });
 }
 
@@ -202,10 +202,73 @@ function pauseBackToMenu() {
   // Reset game state
   if (game) {
     game.state = 'menu';
-    game.stop();
+    if (game.rafId) cancelAnimationFrame(game.rafId);
+    game.rafId = null;
   }
+  
+  // Hide shop button
+  document.getElementById('shopBtn').style.display = 'none';
   
   // Show main menu overlay
   document.getElementById('overlay').style.display = 'flex';
+  document.getElementById('overlay').innerHTML = `
+    <h1>THE STAGE SHOT</h1>
+    <div class="sub">A 2D Shooting Video Game</div>
+    
+    <div class="menuBox">
+      <div class="menuContent">
+        <div class="instructionsSection">
+          <div class="instructionsHeader">INSTRUCTIONS</div>
+          <div class="instructionsText">
+            Have level 15 stages<br>and finish it to win.
+          </div>
+        </div>
+        <div class="avatarCircle"></div>
+      </div>
+    </div>
+
+    <div class="buttonContainer">
+      <button class="menuBtn" onclick="startGame()">START GAME</button>
+      <button class="menuBtn" onclick="showOptions()">OPTIONS</button>
+      <button class="menuBtn" onclick="exitGame()">EXIT</button>
+    </div>
+  `;
+}
+
+function goToMainMenu() {
+  // Reset game state
+  if (game) {
+    game.state = 'menu';
+    if (game.rafId) cancelAnimationFrame(game.rafId);
+    game.rafId = null;
+  }
+  
+  // Hide shop button
+  document.getElementById('shopBtn').style.display = 'none';
+  
+  // Show main menu overlay
+  document.getElementById('overlay').style.display = 'flex';
+  document.getElementById('overlay').innerHTML = `
+    <h1>THE STAGE SHOT</h1>
+    <div class="sub">A 2D Shooting Video Game</div>
+    
+    <div class="menuBox">
+      <div class="menuContent">
+        <div class="instructionsSection">
+          <div class="instructionsHeader">INSTRUCTIONS</div>
+          <div class="instructionsText">
+            Have level 15 stages<br>and finish it to win.
+          </div>
+        </div>
+        <div class="avatarCircle"></div>
+      </div>
+    </div>
+
+    <div class="buttonContainer">
+      <button class="menuBtn" onclick="startGame()">START GAME</button>
+      <button class="menuBtn" onclick="showOptions()">OPTIONS</button>
+      <button class="menuBtn" onclick="exitGame()">EXIT</button>
+    </div>
+  `;
 }
 
