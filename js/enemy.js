@@ -23,7 +23,7 @@ class Enemy {
     this.patrolTimer = 0;
     this.flashTimer = 0;
     this.enemySprite = enemySprite;
-    this.spriteLoader = new SpriteLoader('enemy', this);
+    this.spriteLoader = new SpriteLoader(enemyType, this);
     // Animation state - frame counts based on actual PNG files
     this.anim = new SpriteAnimator({
       idle:   { frames: 1, fps: 1, loop: true },
