@@ -2,9 +2,10 @@
 // ENEMY
 // ============================================================
 class Enemy {
-  constructor(x, y, type, level, enemySprite) {
+  constructor(x, y, type, level, enemySprite, enemyType = 'enemy') {
     this.x = x; this.y = y;
     this.type = type; // 'grunt'|'sniper'|'boss'|'megaboss'
+    this.enemyType = enemyType; // 'enemy' or 'enemy-2'
     const cfg = Enemy.configs[type];
     this.w = cfg.w; this.h = cfg.h;
     this.speed = cfg.speed * (1 + (level - 1) * 0.15);
@@ -198,8 +199,18 @@ class Enemy {
       // Fallback to old rendering if sprite not loaded
       const isBoss = this.type.includes('boss') || this.type.includes('level-');
       const isMegaboss = this.type === 'megaboss' || this.type === 'level-15';
-      const bodyColor = isMegaboss ? '#660000' : (isBoss ? '#4a0000' : (this.type === 'sniper' ? '#001a3a' : '#1a1a00'));
-      const accentColor = isMegaboss ? '#ff6600' : (isBoss ? '#ff2200' : (this.type === 'sniper' ? '#0088ff' : '#ffcc00'));
+      const isEnemy2 = this.enemyType === 'enemy-2';
+      
+      // Color scheme - enemy-2 variant uses purple/magenta
+      let bodyColor, accentColor;
+      if (isEnemy2) {
+        bodyColor = isMegaboss ? '#330033' : (isBoss ? '#2a0040' : (this.type === 'sniper' ? '#1a0033' : '#0d0015'));
+        accentColor = isMegaboss ? '#ff00ff' : (isBoss ? '#dd00ff' : (this.type === 'sniper' ? '#bb00ff' : '#aa00ff'));
+      } else {
+        bodyColor = isMegaboss ? '#660000' : (isBoss ? '#4a0000' : (this.type === 'sniper' ? '#001a3a' : '#1a1a00'));
+        accentColor = isMegaboss ? '#ff6600' : (isBoss ? '#ff2200' : (this.type === 'sniper' ? '#0088ff' : '#ffcc00'));
+      }
+      
       const legA = Math.abs(this.vx) > 5 ? Math.sin(t * 16) * 8 : 0;
       ctx.fillStyle = '#111122';
       ctx.fillRect(-this.w/2+2, this.h/4, this.w/2-3, this.h/4 + legA);

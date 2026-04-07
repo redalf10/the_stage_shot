@@ -38,15 +38,17 @@ function buildLevel(num) {
   // Enemies
   const count = 5 + num * 2;
   const types = num >= 3 ? ['grunt','grunt','sniper','sniper'] : (num >= 2 ? ['grunt','grunt','sniper'] : ['grunt']);
+  // Alternate enemy appearance: odd levels = 'enemy', even levels = 'enemy-2'
+  const enemyType = num % 2 === 1 ? 'enemy' : 'enemy-2';
   for (let i = 0; i < count; i++) {
     const type = types[Math.floor(Math.random() * types.length)];
     const px = 300 + Math.random() * (W - 400);
-    enemies.push(new Enemy(px, H - 200, type, num));
+    enemies.push(new Enemy(px, H - 200, type, num, null, enemyType));
   }
   
   // Boss on every level - with unique boss type for each level
   const bossType = `level-${num}`;
-  enemies.push(new Enemy(W - 300, H - 200, bossType, num));
+  enemies.push(new Enemy(W - 300, H - 200, bossType, num, null, enemyType));
 
   // Powerups
   for (let i = 0; i < 3; i++) {

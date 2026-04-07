@@ -13,7 +13,7 @@ class SpriteLoader {
   loadAnimationFrames() {
     if (this.type === 'player') {
       this.definePlayerAnimations();
-    } else if (this.type === 'enemy') {
+    } else if (this.type === 'enemy' || this.type === 'enemy-2') {
       this.defineEnemyAnimations();
     }
   }
