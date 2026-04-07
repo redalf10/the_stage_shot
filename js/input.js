@@ -34,7 +34,7 @@ function setupInput() {
   const keys = {};
   document.addEventListener('keydown', e => {
     keys[e.code] = true;
-    if (['ArrowUp','Space','KeyW','ArrowLeft','ArrowRight','KeyA','KeyD','KeyJ','KeyK','KeyL','KeyP'].includes(e.code)) e.preventDefault();
+    if (['ArrowUp','Space','KeyW','ArrowLeft','ArrowRight','KeyA','KeyD','KeyJ','KeyK','KeyL','KeyU','KeyP'].includes(e.code)) e.preventDefault();
     const inp = game.input;
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') inp.left = true;
     if (e.code === 'ArrowRight' || e.code === 'KeyD') inp.right = true;
@@ -46,6 +46,7 @@ function setupInput() {
     if (e.code === 'KeyJ') inp.skill1 = true;
     if (e.code === 'KeyK') inp.skill2 = true;
     if (e.code === 'KeyL') inp.skill3 = true;
+    if (e.code === 'KeyU') inp.skill4 = true;
     if (e.code === 'KeyP') showShop();
     if (e.code === 'Escape') game.togglePause();
   });
@@ -58,6 +59,7 @@ function setupInput() {
     if (e.code === 'KeyJ') inp.skill1 = false;
     if (e.code === 'KeyK') inp.skill2 = false;
     if (e.code === 'KeyL') inp.skill3 = false;
+    if (e.code === 'KeyU') inp.skill4 = false;
   });
 }
 
@@ -82,6 +84,7 @@ function setupMobile() {
   hold('btnSkill1', () => { game.input.skill1 = true; }, () => {});
   hold('btnSkill2', () => { game.input.skill2 = true; }, () => {});
   hold('btnSkill3', () => { game.input.skill3 = true; }, () => {});
+  hold('btnSkill4', () => { game.input.skill4 = true; }, () => {});
 }
 
 // Global sound setting

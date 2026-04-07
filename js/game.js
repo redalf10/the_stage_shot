@@ -73,7 +73,7 @@ class Game {
     this.level = 1;
     this.score = 0;
     this.particles = [];
-    this.input = { left:false, right:false, jump:false, shoot:false, jumpPressed:false, skill1:false, skill2:false, skill3:false };
+    this.input = { left:false, right:false, jump:false, shoot:false, jumpPressed:false, skill1:false, skill2:false, skill3:false, skill4:false };
     this.explosions = []; // For area effects like Ultra Bomb
     this.soundEnabled = true; // Sound toggle
     this.levelCompletedShown = false; // Track if level complete message has been shown
@@ -110,6 +110,7 @@ class Game {
     this.levelH = level.H;
     this.projectiles = [];
     this.explosions = [];
+    this.beams = []; // Beam skill effects
     this.levelCompletedShown = false; // Reset level complete flag
     this.portalShown = false; // Track if portal has been shown
     
@@ -244,6 +245,17 @@ class Game {
       this.input.skill3 = false;
     }
 
+    if (this.input.skill4 && player.alive) {
+      const beam = player.activateBeam(this.levelW);
+      if (beam) {
+        this.beams.push(beam);
+        this.camera.addShake(6);
+        // Spawn particles along beam origin
+        this.spawnParticles(beam.originX, beam.originY, '#ff0088', 15);
+      }
+      this.input.skill4 = false;
+    }
+
     // Enemies
     for (const e of enemies) {
       e.update(dt, player, platforms, projectiles);
@@ -324,6 +336,34 @@ class Game {
       }
     }
     this.explosions = this.explosions.filter(exp => exp.time < (exp.maxDuration || 0.5)); // Remove expired explosions
+
+    // Beams (Beam skill effect - damages enemies on first frame only)
+    for (const beam of this.beams) {
+      beam.time += dt;
+      // Only deal damage on the first frame (time near 0)
+      if (beam.time <= dt * 1.5) {
+        for (const e of enemies) {
+          if (!e.alive) continue;
+          // Check if enemy overlaps the beam rectangle
+          if (e.x + e.w > beam.x && e.x < beam.x + beam.w &&
+              e.y + e.h > beam.y && e.y < beam.y + beam.h) {
+            e.takeDamage(beam.damage);
+            this.spawnParticles(e.x + e.w/2, e.y + e.h/2, '#ff0088', 8);
+            this.camera.addShake(3);
+            if (!e.alive) {
+              this.score += e.score;
+              player.score = this.score;
+              this.spawnParticles(e.x + e.w/2, e.y + e.h/2, '#ff8800', 12);
+              if (Math.random() < 0.3) {
+                const types = ['shield','rapid','health'];
+                powerups.push(new Powerup(e.x, e.y, types[Math.floor(Math.random()*3)]));
+              }
+            }
+          }
+        }
+      }
+    }
+    this.beams = this.beams.filter(b => b.time < b.maxDuration);
 
     // Powerups
     for (const pw of powerups) {
@@ -408,6 +448,9 @@ class Game {
     document.getElementById('skill2CoolVal').style.color = skill2Ready ? '#00ff00' : '#ff8800';
     document.getElementById('skill3CoolVal').textContent = skill3Ready ? 'RDY' : player.skill3Cooldown.toFixed(1);
     document.getElementById('skill3CoolVal').style.color = skill3Ready ? '#00ff00' : '#ff8800';
+    const skill4Ready = player.skill4Cooldown <= 0;
+    document.getElementById('skill4CoolVal').textContent = skill4Ready ? 'RDY' : player.skill4Cooldown.toFixed(1);
+    document.getElementById('skill4CoolVal').style.color = skill4Ready ? '#00ff00' : '#ff8800';
   }
 
   spawnParticles(x, y, color, count) {
@@ -528,6 +571,54 @@ class Game {
       ctx.arc(px, py, exp.radius, 0, Math.PI * 2);
       ctx.stroke();
       ctx.shadowBlur = 0;
+    }
+
+    // Beams (Beam skill effect)
+    for (const beam of this.beams) {
+      const progress = beam.time / beam.maxDuration;
+      const bx = beam.x - cam.x;
+      const by = beam.y - cam.y;
+      const bw = beam.w;
+      const bh = beam.h;
+      
+      // Core beam - bright center line
+      const coreAlpha = Math.max(0, 1 - progress * 1.5);
+      ctx.save();
+      
+      // Outer glow
+      ctx.globalAlpha = coreAlpha * 0.3;
+      ctx.fillStyle = '#ff0088';
+      ctx.shadowBlur = 60;
+      ctx.shadowColor = '#ff0088';
+      ctx.fillRect(bx, by - bh * 0.5, bw, bh * 2);
+      
+      // Middle layer
+      ctx.globalAlpha = coreAlpha * 0.6;
+      ctx.fillStyle = '#ff44aa';
+      ctx.shadowBlur = 30;
+      ctx.shadowColor = '#ff0088';
+      ctx.fillRect(bx, by + bh * 0.15, bw, bh * 0.7);
+      
+      // Bright core
+      ctx.globalAlpha = coreAlpha;
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = '#ff88cc';
+      ctx.fillRect(bx, by + bh * 0.3, bw, bh * 0.4);
+      
+      // Flickering edge particles along the beam
+      const particleCount = 20;
+      for (let i = 0; i < particleCount; i++) {
+        const px = bx + Math.random() * bw;
+        const py = by + bh / 2 + (Math.random() - 0.5) * bh * 1.5;
+        const ps = 2 + Math.random() * 4;
+        ctx.globalAlpha = coreAlpha * (0.3 + Math.random() * 0.7);
+        ctx.fillStyle = Math.random() > 0.5 ? '#ff0088' : '#ff88cc';
+        ctx.fillRect(px, py, ps, ps);
+      }
+      
+      ctx.shadowBlur = 0;
+      ctx.restore();
     }
 
     // Particles

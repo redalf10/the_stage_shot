@@ -40,6 +40,12 @@ class Player {
     this.dashDistance = 0;
     this.dashDuration = 0.15; // 150ms dash
     
+    this.skill4Available = true; // Beam
+    this.skill4Cooldown = 0;
+    this.skill4CooldownMax = 10; // 10 seconds
+    this.skill4Active = false;
+    this.skill4Timer = 0;
+    
     this.playerSprite = playerSprite;
     this.spriteLoader = new SpriteLoader('player', this);
     this.domElement = document.getElementById('player'); // Reference to DOM element
@@ -120,9 +126,11 @@ class Player {
     if (this.skill1Cooldown > 0) this.skill1Cooldown -= dt;
     if (this.skill2Cooldown > 0) this.skill2Cooldown -= dt;
     if (this.skill3Cooldown > 0) this.skill3Cooldown -= dt;
+    if (this.skill4Cooldown > 0) this.skill4Cooldown -= dt;
     if (this.skill1Timer > 0) this.skill1Timer -= dt;
     if (this.skill2Timer > 0) this.skill2Timer -= dt;
     if (this.skill3Timer > 0) this.skill3Timer -= dt;
+    if (this.skill4Timer > 0) this.skill4Timer -= dt;
     
     // Handle dash
     if (this.dashDistance > 0) {
@@ -255,6 +263,36 @@ class Player {
     return true;
   }
 
+  // Skill 4: Beam - Huge horizontal beam that reaches the end of the map
+  activateBeam(levelW) {
+    if (this.skill4Cooldown > 0 || !this.alive) return false;
+    this.skill4Cooldown = this.skill4CooldownMax;
+    this.skill4Active = true;
+    this.skill4Timer = 0.3;
+    
+    this.anim.play('skill');
+    soundManager.play('skill-laser');
+    
+    const beamY = this.y + this.h / 2;
+    const beamStartX = this.facing === 1 ? this.x + this.w : this.x;
+    const beamEndX = this.facing === 1 ? levelW : 0;
+    const beamHeight = 30; // Huge thick beam
+    
+    return {
+      x: Math.min(beamStartX, beamEndX),
+      y: beamY - beamHeight / 2,
+      w: Math.abs(beamEndX - beamStartX),
+      h: beamHeight,
+      damage: 60,
+      owner: 'player',
+      facing: this.facing,
+      originX: beamStartX,
+      originY: beamY,
+      time: 0,
+      maxDuration: 0.6
+    };
+  }
+
   takeDamage(dmg) {
     if (this.invincible > 0) return;
     if (this.powerup === 'shield') { this.powerup = null; this.powerupTimer = 0; return; }
@@ -383,6 +421,20 @@ class Player {
       ctx.shadowColor = '#ffffff';
       ctx.beginPath();
       ctx.ellipse(cx, cy, this.w/2 + 6, this.h/2 + 6, 0, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Skill 4 (Beam) glow effect
+    if (this.skill4Timer > 0) {
+      ctx.save();
+      ctx.globalAlpha = this.skill4Timer * 2;
+      ctx.strokeStyle = '#ff0088';
+      ctx.lineWidth = 3;
+      ctx.shadowBlur = 25;
+      ctx.shadowColor = '#ff0088';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, this.w/2 + 10, this.h/2 + 10, 0, 0, Math.PI*2);
       ctx.stroke();
       ctx.restore();
     }
