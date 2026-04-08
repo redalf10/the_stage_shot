@@ -503,3 +503,30 @@ body {
   from { background-position-x: -600px; }
   to   { background-position-x: -1500px; }
 }
+
+/* Victory Screen Animations */
+@keyframes pulse {
+  0% { 
+    text-shadow: 0 0 30px #00ff88, 0 0 60px #00ff88, 0 0 90px #00ff88;
+    transform: scale(1);
+  }
+  50% { 
+    text-shadow: 0 0 60px #00ff88, 0 0 120px #00ff88, 0 0 180px #00ff88;
+    transform: scale(1.05);
+  }
+  100% { 
+    text-shadow: 0 0 30px #00ff88, 0 0 60px #00ff88, 0 0 90px #00ff88;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  0% { 
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}

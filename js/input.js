@@ -3,17 +3,23 @@
 // ============================================================
 let game;
 let selectedLevel = 1;  // Track selected level from options
+let playingFromSelectLevel = false; // Track if game started from "Select Level" mode
 
 function startGame() {
+  console.log('[startGame] selectedLevel:', selectedLevel, 'type:', typeof selectedLevel);
   if (!game) {
     game = new Game(document.getElementById('gameCanvas'));
     setupInput();
     setupMobile();
   }
   game.level = selectedLevel;
+  game.fromSelectLevel = playingFromSelectLevel; // Set the flag based on how game was started
+  console.log('[startGame] game.level set to:', game.level);
+  console.log('[startGame] game.fromSelectLevel set to:', game.fromSelectLevel);
   game.score = 0;
   game.player = null;
   game.initLevel();
+  console.log('[startGame] Game initialized for level', game.level, 'with', game.enemies.length, 'enemies');
   game.start();
 }
 
@@ -22,10 +28,12 @@ function restartGame() {
   // If restarting from death, keep the current level
   if (game.state === 'win') {
     game.level = 1;
+    playingFromSelectLevel = false; // Reset the flag on victory
   }
   // For 'dead' state, game.level stays the same - restart at the same stage
   game.score = 0;
   game.player = null;
+  game.fromSelectLevel = playingFromSelectLevel; // Update the flag
   game.initLevel();
   game.start();
 }
@@ -98,8 +106,22 @@ function showOptions() {
 }
 
 function closeOptions() {
+  // Clear any inline z-index from optionsOverlay
   document.getElementById('optionsOverlay').style.display = 'none';
-  document.getElementById('overlay').style.display = 'flex';
+  document.getElementById('optionsOverlay').style.zIndex = '';
+  
+  // Show overlay
+  const overlay = document.getElementById('overlay');
+  overlay.style.display = 'flex';
+  overlay.style.zIndex = '';
+}
+
+function goToGame() {
+  // Start game from SELECT LEVEL mode
+  playingFromSelectLevel = true;
+  // Hide options overlay before starting
+  document.getElementById('optionsOverlay').style.display = 'none';
+  startGame();
 }
 
 function exitGame() {
@@ -145,9 +167,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const levelSelect = document.getElementById('levelSelect');
   if (levelSelect) {
     levelSelect.addEventListener('change', () => {
-      selectedLevel = parseInt(levelSelect.value);
-      console.log('Level selected:', selectedLevel);
+      const newLevel = parseInt(levelSelect.value);
+      console.log('[levelSelect change] New level selected:', newLevel, 'Value:', levelSelect.value);
+      selectedLevel = newLevel;
     });
+    // Also log the initial value
+    console.log('[levelSelect init] Initial value:', levelSelect.value, 'selectedLevel:', selectedLevel);
   }
 });
 
@@ -192,9 +217,17 @@ function buyPowerup(type) {
 }
 
 // Pause menu functions
-function resumeGame() {
+function reviveGame() {
   if (game) {
-    game.togglePause();
+    // Hide pause overlay
+    document.getElementById('pauseOverlay').style.display = 'none';
+    
+    // Reset current level from the start
+    game.state = 'playing';
+    game.score = 0;
+    game.player = null;
+    game.initLevel();
+    game.start();
   }
 }
 
@@ -211,6 +244,9 @@ function pauseBackToMenu() {
   
   // Hide shop button
   document.getElementById('shopBtn').style.display = 'none';
+  
+  // Reset the flag when pausing and going back to menu
+  playingFromSelectLevel = false;
   
   // Show main menu overlay
   document.getElementById('overlay').style.display = 'flex';
@@ -249,6 +285,9 @@ function goToMainMenu() {
   // Hide shop button
   document.getElementById('shopBtn').style.display = 'none';
   
+  // Reset the flag when going back to main menu
+  playingFromSelectLevel = false;
+  
   // Show main menu overlay
   document.getElementById('overlay').style.display = 'flex';
   document.getElementById('overlay').innerHTML = `
@@ -273,5 +312,23 @@ function goToMainMenu() {
       <button class="menuBtn" onclick="exitGame()">EXIT</button>
     </div>
   `;
+}
+
+function selectAnotherLevel() {
+  // Go back to options overlay to select another level
+  const overlay = document.getElementById('overlay');
+  const optionsOverlay = document.getElementById('optionsOverlay');
+  
+  // Clear inline styles from overlay
+  overlay.style.display = 'none';
+  overlay.style.zIndex = '';
+  overlay.style.alignItems = '';
+  overlay.style.justifyContent = '';
+  
+  // Show options overlay with proper z-index
+  optionsOverlay.style.display = 'flex';
+  optionsOverlay.style.zIndex = '999';
+  
+  document.getElementById('levelSelect').value = selectedLevel;
 }
 

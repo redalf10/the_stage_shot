@@ -7,6 +7,10 @@ class Enemy {
     this.type = type; // 'grunt'|'sniper'|'boss'|'megaboss'
     this.enemyType = enemyType; // 'enemy' or 'enemy-2'
     const cfg = Enemy.configs[type];
+    if (!cfg) {
+      console.error(`ERROR: Enemy config not found for type "${type}"`, 'Available configs:', Object.keys(Enemy.configs));
+      throw new Error(`Enemy config not found for type: ${type}`);
+    }
     this.w = cfg.w; this.h = cfg.h;
     this.speed = cfg.speed * (1 + (level - 1) * 0.15);
     this.maxHp = Math.round(cfg.hp * (1 + (level - 1) * 0.3));
@@ -182,8 +186,15 @@ class Enemy {
     ctx.save();
     ctx.translate(cx, cy);
     ctx.scale(this.facing, 1);
-    if (!this.alive) ctx.globalAlpha = Math.max(0, 1 - this.deathTimer * 2.5);
-    if (this.flashTimer > 0) { ctx.globalAlpha = 0.4; }
+    
+    // Always explicitly set globalAlpha to avoid inheriting from previous draw calls
+    if (!this.alive) {
+      ctx.globalAlpha = Math.max(0, 1 - this.deathTimer * 2.5);
+    } else if (this.flashTimer > 0) {
+      ctx.globalAlpha = 0.4;
+    } else {
+      ctx.globalAlpha = 1; // Live and not flashing - must be fully opaque
+    }
 
     // Draw sprite
     const frame = this.getSpriteFrame();

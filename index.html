@@ -16,6 +16,7 @@
       <div id="healthBar"><div id="healthFill" style="width:100%"></div></div>
       <div style="margin-top:8px"><span class="label">SCORE </span><span id="scoreVal">000000</span></div>
       <div><span class="label">LEVEL </span><span id="levelVal">01</span></div>
+      <div style="margin-top:4px"><span class="label">ENEMIES </span><span id="enemyCountVal">0/0</span></div>
       <div style="margin-top:12px; border-top: 1px solid #ff00ff; padding-top:8px; font-size:12px;">
         <div style="color:#ffff00;margin-bottom:4px"><span class="label">J LASER</span> <span id="skill1CoolVal">RDY</span></div>
         <div style="color:#ff6600;margin-bottom:4px"><span class="label">K BOMB</span> <span id="skill2CoolVal">RDY</span></div>
@@ -89,6 +90,7 @@
           <option value="14">LEVEL 14</option>
           <option value="15">LEVEL 15</option>
         </select>
+        <button class="startBtn" style="margin-top:15px; display:block; border-color:#00ff88;color:#00ff88" onclick="goToGame()">[ START LEVEL ]</button>
       </div>
     </div>
     <button class="startBtn" style="margin-top:30px;" onclick="closeOptions()">[ BACK ]</button>
@@ -109,7 +111,7 @@
     <div style="background:rgba(0,0,0,0.95); padding:60px; border:3px solid #00ffff; border-radius:12px; text-align:center; box-shadow:0 0 40px #00ffff44;">
       <h2 style="color:#00ffff; font-size:44px; margin-bottom:50px; text-shadow:0 0 20px #00ffff; letter-spacing:4px;">PAUSED</h2>
       <div style="display:flex; gap:30px; justify-content:center; flex-wrap:wrap;">
-        <button class="pauseMenuBtn" onclick="resumeGame()">[ RESUME ]</button>
+        <button class="pauseMenuBtn" onclick="reviveGame()">[ REVIVE ]</button>
         <button class="pauseMenuBtn" onclick="pauseBackToMenu()">[ MAIN MENU ]</button>
       </div>
     </div>

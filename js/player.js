@@ -10,7 +10,7 @@ class Player {
     this.jumpForce = -480;
     this.onGround = false;
     this.facing = 1; // 1=right, -1=left
-    this.hp = 100; this.maxHp = 100;
+    this.hp = 600; this.maxHp = 600;
     this.alive = true;
     this.invincible = 0;
     this.shootCooldown = 0;
@@ -189,7 +189,7 @@ class Player {
     this.shootCooldown = rate;
     const bx = this.facing === 1 ? this.x + this.w : this.x - 14;
     const by = this.y + this.h / 2 - 2;
-    projectiles.push(new Projectile(bx, by, this.facing * 700, 0, 'player', '#00ffff', 20));
+    projectiles.push(new Projectile(bx, by, this.facing * 700, 0, 'player', '#00ffff', 120));
     this.anim.play('shoot');
     // Play shoot sound with variation for each shot
     if (this.powerup === 'rapid') {
@@ -218,8 +218,8 @@ class Player {
       const rad = (angle * Math.PI) / 180;
       const vx = this.facing * baseSpeed * Math.cos(rad);
       const vy = baseSpeed * Math.sin(rad);
-      // 30 damage per shot, bigger size (w:16, h:8)
-      projectiles.push(new Projectile(bx, by, vx, vy, 'player', '#ffff00', 30, 'laser', true));
+      // 180 damage per shot (30 * 6), bigger size (w:16, h:8)
+      projectiles.push(new Projectile(bx, by, vx, vy, 'player', '#ffff00', 180, 'laser', true));
     });
     
     this.anim.play('skill');
@@ -243,7 +243,7 @@ class Player {
       x: this.x + this.w / 2,
       y: this.y + this.h / 2,
       radius: 250, // Increased radius for bigger effect
-      damage: 40, // 100% damage (normal enemy damage is around 30-40, so doubling to 40)
+      damage: 240, // 240 damage (40 * 6)
       owner: 'player',
       time: 0, // For wave animation
       maxDuration: 0.5 // Duration of wave effect
@@ -283,7 +283,7 @@ class Player {
       y: beamY - beamHeight / 2,
       w: Math.abs(beamEndX - beamStartX),
       h: beamHeight,
-      damage: 60,
+      damage: 360,
       owner: 'player',
       facing: this.facing,
       originX: beamStartX,
