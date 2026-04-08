@@ -16,15 +16,15 @@ function buildLevel(num) {
   const colors = ['#00ffff','#ff00ff','#ffff00','#00ff88'];
   const platformData = [
     { x: 150, w: 150 },
-    { x: 380, w: 140 },
-    { x: 600, w: 130 },
-    { x: 800, w: 180 },
-    { x: 1020, w: 150 },
-    { x: 1220, w: 140 },
-    { x: 1420, w: 160 },
-    { x: 1650, w: 140 },
-    { x: 1880, w: 150 },
-    { x: 2100, w: 140 },
+    { x: 440, w: 140 },
+    { x: 660, w: 130 },
+    { x: 860, w: 180 },
+    { x: 1080, w: 150 },
+    { x: 1280, w: 140 },
+    { x: 1480, w: 160 },
+    { x: 1710, w: 140 },
+    { x: 1940, w: 150 },
+    { x: 2160, w: 140 },
   ];
   
   // Create organized vertical levels for better gameplay - positioned lower
@@ -198,8 +198,8 @@ class Game {
     
     console.log(`[Boss Reveal] Boss spawned at (${this.bossData.x}, ${this.bossData.y})`);
     
-    // Play warning sound
-    soundManager.play('boss-die'); // Placeholder - could be a different sound
+    // Play boss spawn sound (heavy metallic impact)
+    soundManager.play('boss-hit');
     
     // Start camera pan to boss
     const bossCameraX = this.bossData.x - this.W / 2;
@@ -599,8 +599,8 @@ class Game {
 
   showWinScreen() {
     console.log('[showWinScreen] Displaying victory screen...');
-    // Play victory sound
-    soundManager.playLevelComplete();
+    // Play victory music
+    soundManager.play('victory-music');
     const ov = document.getElementById('overlay');
     ov.innerHTML = `
       <div style="text-align:center; animation:fadeIn 0.5s ease-in;">

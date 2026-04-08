@@ -215,6 +215,35 @@ class SoundManager {
     this._noise(t + 0.9, 0.6, vol * 0.15, { type: 'lowpass', freq: 400 });
   }
 
+  _genVictoryMusic(t, vol) {
+    // Triumphant victory fanfare with layered chords
+    const notes = [523, 659, 784, 1047]; // C5 E5 G5 C6 (ascending arpeggio)
+    
+    // Opening ascending notes
+    notes.forEach((freq, i) => {
+      this._osc('sine', freq, t + i * 0.12, 0.3, vol * 0.35);
+      this._osc('triangle', freq, t + i * 0.12, 0.25, vol * 0.15);
+    });
+    
+    // Main triumphant chord (held longer)
+    this._osc('sine', 1047, t + 0.5, 1.5, vol * 0.4);    // C6
+    this._osc('sine', 1319, t + 0.5, 1.5, vol * 0.3);    // E6
+    this._osc('sine', 1568, t + 0.5, 1.5, vol * 0.3);    // G6
+    
+    // Bass support for depth
+    this._osc('sine', 262, t + 0.5, 1.5, vol * 0.25);    // C4
+    
+    // Secondary triumphant phrase
+    this._osc('sine', 880, t + 2.0, 0.8, vol * 0.3);     // A5
+    this._osc('sine', 1047, t + 2.2, 0.8, vol * 0.3);    // C6
+    this._osc('sine', 1319, t + 2.4, 1.0, vol * 0.3);    // E6
+    
+    // Sustained ending chord
+    this._osc('sine', 1047, t + 3.4, 2.0, vol * 0.35);
+    this._osc('sine', 1319, t + 3.4, 2.0, vol * 0.3);
+    this._osc('sine', 1568, t + 3.4, 2.0, vol * 0.3);
+  }
+
   // ---- Sound key → generator mapping ----
 
   _generators = {
@@ -234,6 +263,7 @@ class SoundManager {
     'health-pickup':  (t, v) => this._genHealthPickup(t, v),
     'level-complete': (t, v) => this._genLevelComplete(t, v),
     'game-over':      (t, v) => this._genGameOver(t, v),
+    'victory-music':  (t, v) => this._genVictoryMusic(t, v),
   };
 
   // Volume presets per sound key
@@ -244,6 +274,7 @@ class SoundManager {
     'boss-hit': 0.7, 'boss-die': 0.8,
     'powerup-pickup': 0.6, 'health-pickup': 0.6,
     'level-complete': 0.8, 'game-over': 0.7,
+    'victory-music': 0.8,
   };
 
   // ---- Public API (unchanged interface) ----
