@@ -219,7 +219,7 @@ class Player {
       const vx = this.facing * baseSpeed * Math.cos(rad);
       const vy = baseSpeed * Math.sin(rad);
       // 180 damage per shot (30 * 6), bigger size (w:16, h:8)
-      projectiles.push(new Projectile(bx, by, vx, vy, 'player', '#ffff00', 180, 'laser', true));
+      projectiles.push(new Projectile(bx, by, vx, vy, 'player', '#ffff00', 150, 'laser', true));
     });
     
     this.anim.play('skill');
@@ -243,7 +243,7 @@ class Player {
       x: this.x + this.w / 2,
       y: this.y + this.h / 2,
       radius: 250, // Increased radius for bigger effect
-      damage: 240, // 240 damage (40 * 6)
+      damage: 150, // 160 damage
       owner: 'player',
       time: 0, // For wave animation
       maxDuration: 0.5 // Duration of wave effect
@@ -283,7 +283,7 @@ class Player {
       y: beamY - beamHeight / 2,
       w: Math.abs(beamEndX - beamStartX),
       h: beamHeight,
-      damage: 360,
+      damage: 150,
       owner: 'player',
       facing: this.facing,
       originX: beamStartX,
